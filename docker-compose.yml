@@ -1,0 +1,29 @@
+version: "3.8"
+
+# Define our application services
+services:
+  # MongoDB database service
+  mymongo_1:
+    image: mongo:latest   # Using latest MongoDB image
+    container_name: database_container  # More descriptive name
+    ports:
+      - "27017:27017"     # Standard MongoDB port
+    volumes:
+      - mongo-data:/data/db   # Persist data to volume
+    restart: always       # Automatically restart if fails
+
+  # Flask web application
+  backend:                # More conventional service name
+    build: 
+      context: .          # Build from current directory
+    container_name: webapp_container
+    ports:
+      - "5050:5000"       # Host:Container port mapping
+    # Ensure database starts first
+    depends_on:
+      - mymongo_1
+    restart: unless-stopped  # More flexible restart policy
+
+# Persistent storage declaration
+volumes:
+  mongo-data:             # Named volume for database
